@@ -19,9 +19,9 @@ node_features
 import pandas as pd
 import torch
 
-df_train = pd.read_csv("Path")
+df_train = pd.read_csv("Path/train_fold_1")
 
-df_test = pd.read_csv("Path")
+df_test = pd.read_csv("Path/test_fold_1")
 
 df_train.head()
 
@@ -299,4 +299,4 @@ data_test = {
 with open(filename_test, 'w') as json_file:
     json.dump(data_test, json_file, indent=4)
 
-torch.save(model_gcn.state_dict(), "Path")
+torch.save(model_gcn.state_dict(), "Path/gcn_test1.pt")
