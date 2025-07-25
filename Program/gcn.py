@@ -19,9 +19,9 @@ node_features
 import pandas as pd
 import torch
 
-df_train = pd.read_csv("Path/train_fold_1")
+df_train = pd.read_csv("Path/train_foldnumber")
 
-df_test = pd.read_csv("Path/test_fold_1")
+df_test = pd.read_csv("Path/test_foldnumber")
 
 df_train.head()
 
@@ -72,7 +72,6 @@ train_edge_neg_labels = torch.zeros(train_data_edge_neg.size(1))
 
 from torch_geometric.data import Data, DataLoader
 
-## test
 
 filt = df_test["Class Label"] == 1
 columns_to_select = ['node1', 'node2']
@@ -94,7 +93,7 @@ testset=Data(
 
 testset
 
-# negative edge for test
+
 
 filt = df_test["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
@@ -108,7 +107,7 @@ test_edge_neg_labels = torch.zeros(test_data_edge_neg.size(1))
 
 
 
-# model GCN
+
 
 import torch.nn as nn
 from torch_geometric.nn import GCNConv
@@ -255,7 +254,7 @@ test_accuracies.index(max(test_accuracies))
 import json
 import numpy as np
 
-filename = "Path"
+filename = "Path/gcn_train_fold_number.json"
 
 output_list = train_out[train_acc.index(max(train_acc))].detach().numpy().tolist()
 
@@ -279,7 +278,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-filename_test = "Path"
+filename_test = "Path/gcn_test_fold_number.json"
 
 output_list_test = test_out[test_accuracies.index(max(test_accuracies))].detach().numpy().tolist()
 
@@ -299,4 +298,4 @@ data_test = {
 with open(filename_test, 'w') as json_file:
     json.dump(data_test, json_file, indent=4)
 
-torch.save(model_gcn.state_dict(), "Path/gcn_test1.pt")
+torch.save(model_gcn.state_dict(), "Path/gcn_model_fold_number.pt")
