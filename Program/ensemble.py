@@ -1,6 +1,6 @@
 
 
-#run
+
 
 import torch
 import pandas as pd
@@ -8,26 +8,25 @@ import pandas as pd
 pip install torch_geometric
 
 
-#run
 
-df_gat_train = pd.read_json("Path")
+df_gat_train = pd.read_json("Path/gat_train_fold_number.json")
 
-df_gcn_train = pd.read_json("Path")
-
-#run
-
-df_gat_test = pd.read_json("Path")
-
-df_gcn_test = pd.read_json("Path")
+df_gcn_train = pd.read_json("Path/gcn_train_fold_number.json")
 
 
-#run
+
+df_gat_test = pd.read_json("Path/gat_test_fold_number.json")
+
+df_gcn_test = pd.read_json("Path/gcn_test_fold_number.json")
+
+
+
 
 out_train_gat = torch.tensor(df_gat_train["output"].values)
 out_train_gcn = torch.tensor(df_gcn_train["output"].values)
 
 
-#run
+
 
 out_gat_test = torch.tensor(df_gat_test["output"].values)
 out_gcn_test = torch.tensor(df_gcn_test["output"].values)
@@ -37,13 +36,12 @@ out_train_gat_ppi
 
 out_train_gat
 
-#run
+
 
 train_pos = torch.ones(int(len(out_train_gat) / 2))
 train_neg = torch.zeros(int(len(out_train_gat) / 2))
 train_labels = torch.cat((train_pos, train_neg), dim=0)
 
-#run
 
 test_pos = torch.ones(int(len(out_gat_test) / 2))
 test_neg = torch.zeros(int(len(out_gat_test) / 2))
@@ -51,7 +49,7 @@ test_labels = torch.cat((test_pos, test_neg), dim=0)
 
 print(len(test_labels))
 
-#run
+
 
 from sklearn.neural_network import MLPClassifier
 import numpy as np
@@ -59,11 +57,10 @@ import numpy as np
 stck_x = np.column_stack((out_train_gat.float(),out_train_gcn.float()))
 
 
-#run
 
 train_edge_label_np = train_labels.numpy()
 
-#run
+
 
 test_edge_label_np = test_labels.numpy()
 
@@ -77,13 +74,13 @@ from sklearn.linear_model import LogisticRegression
 lr = LogisticRegression()
 lr.fit(stck_x,train_edge_label_np)
 
-#run
+
 
 stck_test_x = np.column_stack((out_gat_test,out_gcn_test))
 
 final_pred_lr = lr.predict(stck_test_x)
 
-#run
+
 
 stck_test_x
 stck_test_x = stck_test_x.astype(np.float32)
@@ -95,7 +92,6 @@ from sklearn.metrics import accuracy_score
 print(accuracy_score(test_edge_label,final_pred_lr))
 
 
-#run
 
 import torch.nn as nn
 class MLP(nn.Module):
@@ -121,7 +117,7 @@ class MLP(nn.Module):
 
 
 
-#run
+
 
 mlp = MLP(2,1,1)
 optimizer = torch.optim.Adam(mlp.parameters(),lr = 0.01, weight_decay=2e-4)
@@ -130,7 +126,7 @@ mlp.eval()
 
 testset
 
-#run
+
 
 
 train_ensemble_acc = []
@@ -153,7 +149,7 @@ def train():
   return loss.item()
 
 
-#run
+
 
 
 test_ensemble_acc = []
@@ -175,8 +171,6 @@ def test():
 
 
 
-#run
-
 for epoch in range(1,400):
   loss=train()
   acc=test()
@@ -185,32 +179,31 @@ for epoch in range(1,400):
 train_ensemble_acc[-1]
 
 
-#run
+
 
 from sklearn.metrics import confusion_matrix
 cm_train = confusion_matrix(train_labels,train_ensemble_pred[train_ensemble_acc.index(max(train_ensemble_acc))])
 print(cm_train)
 
-#run
 
-torch.save(mlp.state_dict(), "Path")
+torch.save(mlp.state_dict(), "Path/ensemble_model_fold_number.pt")
 
 len(list(train_ensemble_out[-1].detach().numpy()))
 
 train_ensemble_out[-1]
 
-#run
+
 
 tn, fp, fn, tp = cm_train.ravel()
 
 cm_train
 
-#run
+
 
 import json
 import numpy as np
 
-filename = "Path"
+filename = "Path/ensemble_train_fold_number.json"
 
 output_list = train_ensemble_out[train_ensemble_acc.index(max(train_ensemble_acc))].detach().numpy().tolist()
 
@@ -243,7 +236,7 @@ tn, fp, fn, tp = cm_test.ravel()
 import json
 import numpy as np
 
-filename = "Path"
+filename = "Path/ensemble_test_fold_number.json"
 
 output_list_test = test_ensemble_out[test_ensemble_acc.index(max(test_ensemble_acc))].detach().numpy().tolist()
 
@@ -263,7 +256,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-#run
+
 
 df_ensemble = pd.read_json("Path")
 
