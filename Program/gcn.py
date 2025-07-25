@@ -4,7 +4,7 @@ import pandas as pd
 
 import json
 
-with open('Path/', 'r') as file:
+with open('Path/feature.json', 'r') as file:
     data = json.load(file)
 print(len(data))
 print(len(list(data.values())[0]))
