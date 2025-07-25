@@ -255,7 +255,7 @@ print(max(test_accuracies))
 import json
 import numpy as np
 
-filename = "Path"
+filename = "Path/gat_train_fold_number.json"
 
 #r output_list = train_out[train_acc.index(max(train_acc))].detach().numpy().tolist()
 output_list = train_pred[train_acc.index(max(train_acc))].detach().numpy().tolist()
@@ -281,7 +281,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-filename_test = "Path"
+filename_test = "Path/gat_test_fold_number.json"
 
 output_list_test = test_out[test_accuracies.index(max(test_accuracies))].detach().numpy().tolist()
 
@@ -301,7 +301,7 @@ data_test = {
 with open(filename_test, 'w') as json_file:
     json.dump(data_test, json_file, indent=4)
 
-torch.save(model_gat.state_dict(), "Path")
+torch.save(model_gat.state_dict(), "Path/gat_model_fold_number.pt")
 
 
 
