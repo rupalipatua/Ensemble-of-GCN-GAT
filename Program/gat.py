@@ -4,7 +4,7 @@ import pandas as pd
 
 import json
 
-with open('Path', 'r') as file:
+with open('Path/feature.json', 'r') as file:
     data = json.load(file)
 print(len(data))
 print(len(list(data.values())[0]))
@@ -18,9 +18,9 @@ node_features
 import pandas as pd
 import torch
 
-df_train = pd.read_csv("Path")
+df_train = pd.read_csv("Path/train_foldnumber")
 
-df_test = pd.read_csv("Path")
+df_test = pd.read_csv("Path/test_foldnumber")
 
 df_train.head()
 
@@ -93,7 +93,6 @@ testset=Data(
 
 testset
 
-# negative edge for test
 
 filt = df_test["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
@@ -105,9 +104,6 @@ test_data_edge_neg = torch.tensor(test_data_neg, dtype=torch.long).t().contiguou
 
 test_edge_neg_labels = torch.zeros(test_data_edge_neg.size(1))
 
-
-
-# model Gat
 
 import torch.nn as nn
 from torch_geometric.nn import GATv2Conv,GATConv
