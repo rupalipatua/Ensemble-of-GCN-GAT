@@ -1,15 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import torch
 import pandas as pd
-
-
-# In[ ]:
-
 
 import pandas as pd
 
@@ -18,64 +8,32 @@ df_hold_pos = pd.read_csv("positive_hold_out.csv")
 df_hold_neg = pd.read_csv("negative_hold_out.csv")
 
 
-# In[ ]:
-
-
 df_hold_pos["Class Label"] = 1
 df_hold_neg["Class Label"] = 0
-
-
-# In[ ]:
 
 
 pip install torch_geometric
 
 
-# In[ ]:
-
-
 df_node_features = pd.read_csv("/content/drive/MyDrive/orbit-counts (1).txt",names= ["col"])
-
-
-# In[ ]:
-
 
 import pandas as pd
 import torch
 import json
-
-
-# In[ ]:
-
 
 lst_node_feature = []
 for string_data in df_node_features["col"].values:
   integer_data = [int(x) for x in string_data.split()]
   lst_node_feature.append(integer_data)
 
-
-# In[ ]:
-
-
 node_features = torch.tensor(lst_node_feature, dtype=torch.float32)
-
-
-# In[ ]:
-
 
 filt = df_hold_out["Class Label"] == 1
 columns_to_select = ['node1', 'node2']
 hold_out_data = df_hold_out[filt][columns_to_select].values
 
 
-# In[ ]:
-
-
 hold_out_data_edge = torch.tensor(hold_out_data, dtype=torch.long).t().contiguous()
-
-
-# In[ ]:
-
 
 from torch_geometric.data import Data
 
@@ -90,14 +48,8 @@ hold_outset=Data(
     edge_labels=hold_out_edge_labels
 )
 
-
-# In[ ]:
-
-
 hold_outset
 
-
-# In[ ]:
 
 
 # Negative edge for hold_out
@@ -106,37 +58,17 @@ filt = df_hold_out["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
 hold_out_data_neg = df_hold_out[filt][columns_to_select].values
 
-
-# In[ ]:
-
-
 hold_out_data_edge_neg = torch.tensor(hold_out_data_neg, dtype=torch.long).t().contiguous()
-
-
-# In[ ]:
-
 
 hold_out_edge_neg_labels = torch.zeros(hold_out_data_edge_neg.size(1))
 
-
-# In[ ]:
-
-
 from torch_geometric.data import Data, DataLoader
-
-
-# In[ ]:
-
 
 def func_normalize(data_value):
   from sklearn.preprocessing  import MinMaxScaler
   mm = MinMaxScaler()
   train_x = mm.fit_transform(data_value)
   return train_x
-
-
-# In[ ]:
-
 
 hold_out_edge_label_index = torch.cat(
             [hold_outset.edge_index, hold_out_data_edge_neg],
@@ -148,21 +80,7 @@ hold_out_edge_label = torch.cat([
             hold_out_edge_neg_labels
         ], dim=0)
 
-
-# In[ ]:
-
-
 hold_outset
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
 
 # model GCN
 
@@ -199,14 +117,6 @@ class New_Gcnn_two_Layers(nn.Module):
     return val
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
 
 # model Gat
 
@@ -241,15 +151,6 @@ class New_GAT_two_layers(torch.nn.Module):
     return val
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 import torch
 
 model_gat = New_GAT_two_layers(hold_outset.num_features,68,34)
@@ -264,16 +165,11 @@ with torch.no_grad():
   out_gat_hold_out = model_gat.decode(z, hold_out_edge_label_index).view(-1)
 
 
-# In[ ]:
-
 
 prediction_hold_out_gat = (torch.sigmoid(out_gat_hold_out) > 0.5).float()
 correct_prediction_hold_out_gat = (prediction_hold_out_gat == hold_out_edge_label).float()
 acc_gat_hold_out = correct_prediction_hold_out_gat.mean()
 print(acc_gat_hold_out)
-
-
-# In[ ]:
 
 
 import torch
@@ -291,33 +187,18 @@ with torch.no_grad():
   out_gcn_hold_out = model_gcn.decode(z, hold_out_edge_label_index).view(-1)
 
 
-# In[ ]:
-
-
 prediction_hold_out_gcn = (torch.sigmoid(out_gcn_hold_out) > 0.5).float()
 correct_prediction_hold_out_gcn = (prediction_hold_out_gcn == hold_out_edge_label).float()
 acc_gcn_hold_out = correct_prediction_hold_out_gcn.mean()
 print(acc_gcn_hold_out)
 
-
-# In[ ]:
-
-
 from sklearn.metrics import confusion_matrix
 cm_hold_out_gcn = confusion_matrix(hold_out_edge_label ,prediction_hold_out_gcn)
 print(cm_hold_out_gcn)
 
-
-# In[ ]:
-
-
 from sklearn.metrics import confusion_matrix
 cm_hold_out_gat = confusion_matrix(hold_out_edge_label,prediction_hold_out_gat)
 print(cm_hold_out_gat)
-
-
-# In[ ]:
-
 
 import json
 import numpy as np
@@ -370,10 +251,3 @@ data = {
 
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
-
-
-# In[ ]:
-
-
-
-
