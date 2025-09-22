@@ -51,9 +51,6 @@ hold_outset=Data(
 hold_outset
 
 
-
-# Negative edge for hold_out
-
 filt = df_hold_out["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
 hold_out_data_neg = df_hold_out[filt][columns_to_select].values
@@ -82,7 +79,6 @@ hold_out_edge_label = torch.cat([
 
 hold_outset
 
-# model GCN
 
 import torch.nn as nn
 from torch_geometric.nn import GCNConv
@@ -95,8 +91,7 @@ class New_Gcnn_two_Layers(nn.Module):
     self.gcn2 = GCNConv(hidden_dim,output_dim)
     self.layer1 = nn.Linear(hidden_dim,hidden_dim)
     self.layer2 = nn.Linear(output_dim,output_dim)
-    #self.update = nn.Linear(hidden_dim+output_dim,output_dim)
-    #self.update = nn.Linear(output_dim,output_dim)
+    
 
 
   def encode(self,x,edge_val):
@@ -107,7 +102,7 @@ class New_Gcnn_two_Layers(nn.Module):
      h = self.gcn2(val1, edge_val)
      h = F.relu(h)
      val2 = F.relu(self.layer2(h))
-     #val2 = F.dropout(val2, p=0.2, training=self.training)
+    
      return val2
 
  
@@ -118,7 +113,7 @@ class New_Gcnn_two_Layers(nn.Module):
 
 
 
-# model Gat
+
 
 import torch.nn as nn
 from torch_geometric.nn import GATv2Conv,GATConv
@@ -132,7 +127,7 @@ class New_GAT_two_layers(torch.nn.Module):
     self.gat2 = GATv2Conv(dim_out*heads, dim_out, heads=1)
     self.layer1 = nn.Linear(dim_h,dim_out)
     self.layer2 = nn.Linear(dim_out,dim_out)
-    #self.update = nn.Linear(dim_h*heads+dim_out,dim_out)
+  
 
   def encode(self,x,edge_val):
      #h = F.dropout(x, p=0.2, training=self.training)
@@ -169,7 +164,7 @@ with torch.no_grad():
 prediction_hold_out_gat = (torch.sigmoid(out_gat_hold_out) > 0.5).float()
 correct_prediction_hold_out_gat = (prediction_hold_out_gat == hold_out_edge_label).float()
 acc_gat_hold_out = correct_prediction_hold_out_gat.mean()
-print(acc_gat_hold_out)
+
 
 
 import torch
@@ -190,20 +185,17 @@ with torch.no_grad():
 prediction_hold_out_gcn = (torch.sigmoid(out_gcn_hold_out) > 0.5).float()
 correct_prediction_hold_out_gcn = (prediction_hold_out_gcn == hold_out_edge_label).float()
 acc_gcn_hold_out = correct_prediction_hold_out_gcn.mean()
-print(acc_gcn_hold_out)
 
 from sklearn.metrics import confusion_matrix
 cm_hold_out_gcn = confusion_matrix(hold_out_edge_label ,prediction_hold_out_gcn)
-print(cm_hold_out_gcn)
 
 from sklearn.metrics import confusion_matrix
 cm_hold_out_gat = confusion_matrix(hold_out_edge_label,prediction_hold_out_gat)
-print(cm_hold_out_gat)
 
 import json
 import numpy as np
 
-filename = "gat_hold_out_fold_number.json"
+filename = "gat_hold_out_fold.json"
 
 output_list = out_gat_hold_out.detach().numpy().tolist()
 
@@ -231,7 +223,7 @@ with open(filename, 'w') as json_file:
 import json
 import numpy as np
 
-filename = "gcn_hold_out_fold_number.json"
+filename = "gcn_hold_out_fold.json"
 
 output_list = out_gcn_hold_out.detach().numpy().tolist()
 
