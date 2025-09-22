@@ -18,9 +18,9 @@ node_features
 import pandas as pd
 import torch
 
-df_train = pd.read_csv("Path/train_foldnumber")
+df_train = pd.read_csv("Path/train_fold")
 
-df_test = pd.read_csv("Path/test_foldnumber")
+df_test = pd.read_csv("Path/test_fold")
 
 df_train.head()
 
@@ -29,8 +29,6 @@ df_train.tail()
 df_test.tail()
 
 df_test.head()
-
-print(len(df_test))
 
 node_features
 
@@ -59,7 +57,6 @@ df_train.head()
 
 trainset.edge_index
 
-# Negative edge for train
 
 filt = df_train["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
@@ -71,13 +68,11 @@ train_edge_neg_labels = torch.zeros(train_data_edge_neg.size(1))
 
 from torch_geometric.data import Data, DataLoader
 
-## test
 
 filt = df_test["Class Label"] == 1
 columns_to_select = ['node1', 'node2']
 test_data = df_test[filt][columns_to_select].values
 
-#test_data_int = test_data.astype(int)
 test_data_edge = torch.tensor(test_data, dtype=torch.long).t().contiguous()
 
 node_labels = torch.ones(test_data_edge.size(1))
@@ -98,7 +93,6 @@ filt = df_test["Class Label"] == 0
 columns_to_select = ['node1', 'node2']
 test_data_neg = df_test[filt][columns_to_select].values
 
-#test_data_int = test_data_neg.astype(int)
 test_data_edge_neg = torch.tensor(test_data_neg, dtype=torch.long).t().contiguous()
 
 
@@ -149,17 +143,9 @@ class New_GAT_two_layer(torch.nn.Module):
 
 
 
-
-
-
-# model Gat
-
 model_gat = New_GAT_two_layer(trainset.num_features,68,34)
-#model_gat.to(device)
 optimizer = torch.optim.Adam(model_gat.parameters(),lr=0.01,weight_decay=1e-4)
 criterion = torch.nn.BCEWithLogitsLoss()
-#criterion = CustomLoss()
-#criterion = nn.MSELoss()
 
 def func_normalize(data_value):
   from sklearn.preprocessing  import MinMaxScaler
@@ -245,19 +231,13 @@ for epoch in range(1,1000):
   acc=test()
   print(f"Epoch {epoch}, train_Loss: {loss:.10f}, test_Accuracy: {acc:.4f}")
 
-print(max(train_acc))
-#print("pp",train_acc.index(max(train_acc)))
-#print("qq", train_out[train_acc.index(max(train_acc))])
-#print("ss", train_pred[train_acc.index(max(train_acc))])
-
-print(max(test_accuracies))
 
 import json
 import numpy as np
 
-filename = "Path/gat_train_fold_number.json"
+filename = "Path/gat_train_fold.json"
 
-#r output_list = train_out[train_acc.index(max(train_acc))].detach().numpy().tolist()
+
 output_list = train_pred[train_acc.index(max(train_acc))].detach().numpy().tolist()
 
 
@@ -281,7 +261,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-filename_test = "Path/gat_test_fold_number.json"
+filename_test = "Path/gat_test_fold.json"
 
 output_list_test = test_out[test_accuracies.index(max(test_accuracies))].detach().numpy().tolist()
 
