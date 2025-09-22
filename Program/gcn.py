@@ -19,9 +19,9 @@ node_features
 import pandas as pd
 import torch
 
-df_train = pd.read_csv("Path/train_foldnumber")
+df_train = pd.read_csv("Path/train_fold")
 
-df_test = pd.read_csv("Path/test_foldnumber")
+df_test = pd.read_csv("Path/test_fold")
 
 df_train.head()
 
@@ -140,10 +140,8 @@ class New_Gcnn_two_Layer(nn.Module):
      #h = F.relu(h)
      val2 = F.relu(self.layer2(h))
      #val2 = F.dropout(val2, p=0.2, training=self.training)
-     #print("updated shape ",updated.shape)
      return val2
 
-    #print(updated[edge_val[0][0]]*updated[edge_val[1][0]])
   def decode(self,updated,edge_val):
     val = (updated[edge_val[0]]*updated[edge_val[1]]).sum(dim=-1)
 
@@ -151,7 +149,6 @@ class New_Gcnn_two_Layer(nn.Module):
 
 
 
-# model Gcn
 
 model_gcn = New_Gcnn_two_Layer(trainset.num_features,68,34)
 optimizer = torch.optim.Adam(model_gcn.parameters(),lr=0.01, weight_decay=1e-4)
@@ -241,9 +238,6 @@ for epoch in range(1,500):
   acc=test()
   print(f"Epoch {epoch}, train_Loss: {loss:.10f}, test_Accuracy: {acc:.4f}")
 
-print(max(train_acc))
-
-print(max(test_accuracies))
 
 
 
@@ -254,7 +248,7 @@ test_accuracies.index(max(test_accuracies))
 import json
 import numpy as np
 
-filename = "Path/gcn_train_fold_number.json"
+filename = "Path/gcn_train_fold.json"
 
 output_list = train_out[train_acc.index(max(train_acc))].detach().numpy().tolist()
 
@@ -278,7 +272,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-filename_test = "Path/gcn_test_fold_number.json"
+filename_test = "Path/gcn_test_fold.json"
 
 output_list_test = test_out[test_accuracies.index(max(test_accuracies))].detach().numpy().tolist()
 
@@ -298,4 +292,4 @@ data_test = {
 with open(filename_test, 'w') as json_file:
     json.dump(data_test, json_file, indent=4)
 
-torch.save(model_gcn.state_dict(), "Path/gcn_model_fold_number.pt")
+torch.save(model_gcn.state_dict(), "Path/gcn_model_fold.pt")
