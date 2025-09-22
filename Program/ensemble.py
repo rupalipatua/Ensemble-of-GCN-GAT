@@ -9,15 +9,15 @@ pip install torch_geometric
 
 
 
-df_gat_train = pd.read_json("Path/gat_train_fold_number.json")
+df_gat_train = pd.read_json("Path/gat_train_fold.json")
 
-df_gcn_train = pd.read_json("Path/gcn_train_fold_number.json")
+df_gcn_train = pd.read_json("Path/gcn_train_fold.json")
 
 
 
-df_gat_test = pd.read_json("Path/gat_test_fold_number.json")
+df_gat_test = pd.read_json("Path/gat_test_fold.json")
 
-df_gcn_test = pd.read_json("Path/gcn_test_fold_number.json")
+df_gcn_test = pd.read_json("Path/gcn_test_fold.json")
 
 
 
@@ -46,9 +46,6 @@ train_labels = torch.cat((train_pos, train_neg), dim=0)
 test_pos = torch.ones(int(len(out_gat_test) / 2))
 test_neg = torch.zeros(int(len(out_gat_test) / 2))
 test_labels = torch.cat((test_pos, test_neg), dim=0)
-
-print(len(test_labels))
-
 
 
 from sklearn.neural_network import MLPClassifier
@@ -89,7 +86,6 @@ stck_test_x
 
 from sklearn.metrics import accuracy_score
 
-print(accuracy_score(test_edge_label,final_pred_lr))
 
 
 
@@ -110,9 +106,6 @@ class MLP(nn.Module):
     h = F.relu(self.layer2(h))
     #h = F.relu(h)
     h = F.dropout(h, p=0.2, training=self.training)
-    #h = F.dropout(h, p=0.5, training=self.training)
-    #h = self.layer2(h)
-    #val = (h[edge_index[0]]*h[edge_index[1]]).sum(dim=-1)
     return h
 
 
@@ -183,7 +176,6 @@ train_ensemble_acc[-1]
 
 from sklearn.metrics import confusion_matrix
 cm_train = confusion_matrix(train_labels,train_ensemble_pred[train_ensemble_acc.index(max(train_ensemble_acc))])
-print(cm_train)
 
 
 torch.save(mlp.state_dict(), "Path/ensemble_model_fold_number.pt")
@@ -203,7 +195,7 @@ cm_train
 import json
 import numpy as np
 
-filename = "Path/ensemble_train_fold_number.json"
+filename = "Path/ensemble_train_fold.json"
 
 output_list = train_ensemble_out[train_ensemble_acc.index(max(train_ensemble_acc))].detach().numpy().tolist()
 
@@ -223,20 +215,17 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-#run
 
 cm_test = confusion_matrix(test_labels_ppi,test_ensemble_pred[test_ensemble_acc.index(max(test_ensemble_acc))])
 
-#run
 
 tn, fp, fn, tp = cm_test.ravel()
 
-#run
 
 import json
 import numpy as np
 
-filename = "Path/ensemble_test_fold_number.json"
+filename = "Path/ensemble_test_fold.json"
 
 output_list_test = test_ensemble_out[test_ensemble_acc.index(max(test_ensemble_acc))].detach().numpy().tolist()
 
