@@ -1,26 +1,36 @@
-import torch
+
 import pandas as pd
-
-
 import json
+import torch
+import numpy as np
+from torch_geometric.data import Data, DataLoader
+import torch.nn as nn
+from torch_geometric.nn import GATv2Conv,GATConv
+import torch.nn.functional as F
 
-with open('Path/feature.json', 'r') as file:
+
+
+# Data path 
+iPath='DataSet'
+mPath='Models'
+oPath='Result'
+
+
+with open('iPath/feature.json', 'r') as file:
     data = json.load(file)
 print(len(data))
 print(len(list(data.values())[0]))
-
 node_features = torch.tensor(list(data.values()), dtype=torch.float32)
 
-node_features
+# node_features
 
 #pip install torch_geometric
 
-import pandas as pd
-import torch
 
-df_train = pd.read_csv("Path/train_fold")
 
-df_test = pd.read_csv("Path/test_fold")
+df_train = pd.read_csv("iPath/train_fold")
+
+df_test = pd.read_csv("iPath/test_fold")
 
 df_train.head()
 
@@ -38,7 +48,7 @@ train_data = df_train[filt][columns_to_select].values
 
 train_data_edge = torch.tensor(train_data, dtype=torch.long).t().contiguous()
 
-from torch_geometric.data import Data
+
 
 
 node_labels = torch.ones(train_data_edge.size(1))
@@ -66,7 +76,7 @@ train_data_edge_neg = torch.tensor(train_data_neg, dtype=torch.long).t().contigu
 
 train_edge_neg_labels = torch.zeros(train_data_edge_neg.size(1))
 
-from torch_geometric.data import Data, DataLoader
+
 
 
 filt = df_test["Class Label"] == 1
@@ -99,9 +109,7 @@ test_data_edge_neg = torch.tensor(test_data_neg, dtype=torch.long).t().contiguou
 test_edge_neg_labels = torch.zeros(test_data_edge_neg.size(1))
 
 
-import torch.nn as nn
-from torch_geometric.nn import GATv2Conv,GATConv
-import torch.nn.functional as F
+
 
 class New_GAT_two_layer(torch.nn.Module):
 
@@ -173,7 +181,7 @@ train_pred = []
 train_out = []
 train_confusion_matrix = []
 
-import torch.nn.functional as F
+
 def train():
   model_gat.eval()
   optimizer.zero_grad()
@@ -232,10 +240,7 @@ for epoch in range(1,1000):
   print(f"Epoch {epoch}, train_Loss: {loss:.10f}, test_Accuracy: {acc:.4f}")
 
 
-import json
-import numpy as np
-
-filename = "Path/gat_train_fold.json"
+filename = "oPath/gat_train_fold.json"
 
 
 output_list = train_pred[train_acc.index(max(train_acc))].detach().numpy().tolist()
@@ -261,7 +266,7 @@ data = {
 with open(filename, 'w') as json_file:
     json.dump(data, json_file, indent=4)
 
-filename_test = "Path/gat_test_fold.json"
+filename_test = "oPath/gat_test_fold.json"
 
 output_list_test = test_out[test_accuracies.index(max(test_accuracies))].detach().numpy().tolist()
 
